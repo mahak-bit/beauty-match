@@ -1,14 +1,11 @@
 "use client";
-
+import RevealText from "@/components/RevealText";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ScanIcon, Sparkles, Users, FlaskConical } from "lucide-react";
-import RevealText from "@/components/RevealText";
 import { MagneticButton } from "@/components/MagneticButton";
 
-<h1 className="font-display text-6xl md:text-7xl leading-[1.05] mt-6">
-  <RevealText text="Stop guessing what your skin and hair actually need" />
-</h1>
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -40,20 +37,17 @@ export default function Home() {
               Skin &amp; hair diagnostic — not another quiz
             </motion.span>
             <motion.h1
-              variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="font-display text-6xl md:text-7xl leading-[1.05] mt-6"
-            >
-              Stop guessing what
-              <br />
-              your <span className="italic text-[var(--violet)]">skin and hair</span>
-              <br />
-              actually need.
-            </motion.h1>
+  variants={fadeUp}
+  transition={{ duration: 0.6 }}
+  className="font-display text-4xl sm:text-5xl md:text-7xl leading-[1.1] mt-6"
+>
+  <RevealText text="Stop guessing what your skin and hair actually need" />
+</motion.h1>
+              your <span className="italic text-[var(--violet)]">skin and hair</span> actually need
             <motion.p
               variants={fadeUp}
               transition={{ duration: 0.6 }}
-              className="mt-8 text-lg text-[var(--muted)] max-w-lg"
+              className="mt-8 text-base sm:text-lg text-[var(--muted)] max-w-lg"
             >
               Match reads your type, your concerns and your routine, then
               points you to real products from real brands — with the exact
@@ -62,7 +56,7 @@ export default function Home() {
             <motion.div
               variants={fadeUp}
               transition={{ duration: 0.6 }}
-              className="mt-10 flex items-center gap-4"
+              className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4"
             >
               <MagneticButton
   onClick={() => (window.location.href = "/quiz")}
