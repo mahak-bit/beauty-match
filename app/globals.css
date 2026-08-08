@@ -120,10 +120,23 @@ body::before {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  animation: hero-fade-in 1.4s ease-out forwards;
+}
+
+.hero-image-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background-image: url("/images/hero-bg.jpg");
   background-size: cover;
-  background-position: center 30%;
-  animation: hero-fade-in 1.4s ease-out forwards;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 640px) {
+  .hero-image-bg::after {
+    background-position: 50% 25%;
+  }
 }
 
 @media (max-width: 640px) {
