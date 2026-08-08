@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <div>
       {/* ---------------- Hero: the signature scan moment ---------------- */}
-      <section className="relative overflow-hidden border-b border-[var(--hairline)] min-h-screen">
+      <section className="relative overflow-hidden border-b border-[var(--hairline)] min-h-[100dvh]">
         <div className="hero-image-bg">
   <div className="hero-image-overlay" />
 </div>
