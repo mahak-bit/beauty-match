@@ -122,8 +122,15 @@ body::before {
   overflow: hidden;
   background-image: url("/images/hero-bg.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center 30%;
   animation: hero-fade-in 1.4s ease-out forwards;
+}
+
+@media (max-width: 640px) {
+  .hero-image-bg {
+    background-position: center 20%;
+    background-size: cover;
+  }
 }
 
 .hero-image-overlay {
