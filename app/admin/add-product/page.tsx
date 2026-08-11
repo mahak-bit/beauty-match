@@ -52,6 +52,9 @@ export default function AddProductPage() {
   }
 
   useEffect(() => {
+    // Fetch-on-mount: the setState happens asynchronously after the fetch
+    // resolves, not synchronously within this effect's execution.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadBrands();
   }, []);
 
@@ -141,7 +144,7 @@ export default function AddProductPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
-      <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--cyan)]">
+      <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--gold-deep)]">
         For brands & internal entry
       </span>
       <h1 className="font-display text-4xl mt-4 mb-2">List a product</h1>
@@ -161,7 +164,7 @@ export default function AddProductPage() {
               <select
                 value={brandId}
                 onChange={(e) => setBrandId(e.target.value)}
-                className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-lg px-4 py-3 text-sm outline-none focus:border-[var(--violet)]"
+                className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-lg px-4 py-3 text-sm outline-none focus:border-[var(--gold)]"
               >
                 <option value="">Select a brand…</option>
                 {brands.map((b) => (
@@ -173,7 +176,7 @@ export default function AddProductPage() {
               <button
                 type="button"
                 onClick={() => setCreatingBrand(true)}
-                className="flex items-center gap-1 px-4 py-3 rounded-lg border border-[var(--hairline)] text-sm text-[var(--muted)] hover:border-[var(--violet)] hover:text-[var(--violet)] transition-colors whitespace-nowrap"
+                className="flex items-center gap-1 px-4 py-3 rounded-lg border border-[var(--hairline)] text-sm text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors whitespace-nowrap"
               >
                 <Plus size={14} /> New brand
               </button>
@@ -184,12 +187,12 @@ export default function AddProductPage() {
                 value={newBrandName}
                 onChange={(e) => setNewBrandName(e.target.value)}
                 placeholder="Brand name"
-                className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-lg px-4 py-3 text-sm outline-none focus:border-[var(--violet)]"
+                className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-lg px-4 py-3 text-sm outline-none focus:border-[var(--gold)]"
               />
               <button
                 type="button"
                 onClick={handleCreateBrand}
-                className="px-4 py-3 rounded-lg bg-[var(--violet)] text-[var(--ink)] text-sm"
+                className="px-4 py-3 rounded-lg bg-[var(--ink)] text-[var(--bg)] text-sm"
               >
                 Add
               </button>
@@ -217,7 +220,7 @@ export default function AddProductPage() {
           <Field label="Category">
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
+              onChange={(e) => setCategory(e.target.value as "skincare" | "haircare" | "both")}
               className="input"
             >
               <option value="skincare">Skincare</option>
@@ -326,7 +329,7 @@ export default function AddProductPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--violet)] text-[var(--ink)] font-medium hover:bg-[var(--cyan)] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--ink)] text-[var(--bg)] font-medium hover:bg-[var(--gold-deep)] transition-colors disabled:opacity-50"
         >
           {success ? (
             <>
@@ -351,7 +354,7 @@ export default function AddProductPage() {
           outline: none;
         }
         .input:focus {
-          border-color: var(--violet);
+          border-color: var(--gold);
         }
       `}</style>
     </div>

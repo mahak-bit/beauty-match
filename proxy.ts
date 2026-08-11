@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = req.nextUrl.pathname === "/admin/login";
 

@@ -1,20 +1,40 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens — warm ivory / champagne / charcoal, the Beauty Match
+   palette. Two deliberate "dark panel" moments (hero, footer, brand strip)
+   use --panel/--panel-2 for cinematic contrast against an otherwise light,
+   editorial page. Never introduce a third accent hue — gold is the only
+   metallic, blush is the only warm accent, used sparingly.
+--------------------------------------------------------------------------- */
 :root {
-  --ink: #0a0912;
-  --surface: #14121c;
-  --surface-2: #1c1926;
-  --hairline: #2a2636;
-  --paper: #f3f0f7;
-  --muted: #948da8;
-  --violet: #b6a2ff;
-  --violet-dim: #7c6bb0;
-  --cyan: #7ff0d8;
-  --rose: #f2a5c4;
+  --bg: #f8f3ea;
+  --surface: #fffdf9;
+  --surface-2: #f1e7d5;
+  --hairline: #e7dac0;
+  --ink: #221e1a;
+  --ink-soft: #4a4038;
+  --muted: #8a7c68;
+
+  --gold: #a67c3d;
+  --gold-soft: #c9a25f;
+  --gold-deep: #7d5c2c;
+  --blush: #d9a79a;
+  --nude: #cdb9a4;
+
+  --panel: #221e1a;
+  --panel-2: #2c2620;
+  --on-panel: #f3ead9;
+  --on-panel-muted: #b3a794;
+
+  --warn: #a8721f;
+  --warn-bg: #f6ead2;
 
   --font-display: "Instrument Serif", serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "Space Mono", monospace;
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
@@ -27,20 +47,59 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 body {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-body);
 }
 
 ::selection {
-  background: var(--violet);
-  color: var(--ink);
+  background: var(--gold-soft);
+  color: var(--panel);
 }
 
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- Fine paper grain — subtle, editorial, not a "gamer" noise texture ---- */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- Ambient glow — a soft, controlled light source, never a blob ---- */
+@keyframes glow-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, -3%) scale(1.06); }
+}
+
+.glow-orb {
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--gold-soft) 0%, transparent 68%);
+  filter: blur(90px);
+  opacity: 0.18;
+  animation: glow-drift 16s var(--ease-premium) infinite;
+  pointer-events: none;
+}
+
+/* ---- Scan line — kept as the signature diagnostic motif, restyled gold ---- */
 @keyframes scan-sweep {
   0% { transform: translateY(-100%); opacity: 0; }
   10% { opacity: 1; }
@@ -53,89 +112,68 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), transparent);
-  box-shadow: 0 0 20px 1px rgba(127, 240, 216, 0.5);
-  animation: scan-sweep 4.5s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, var(--gold-soft), var(--blush), transparent);
+  box-shadow: 0 0 20px 1px rgba(201, 162, 95, 0.45);
+  animation: scan-sweep 5s ease-in-out infinite;
 }
 
-.grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+/* ---- Glassmorphism — used sparingly, on hero/quiz-result panels only ---- */
+.glass-panel {
+  background: rgba(255, 253, 249, 0.6);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.font-display { font-family: var(--font-display); }
-.font-mono { font-family: var(--font-mono); }
-
-:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 2px;
-}
-@keyframes orb-float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -40px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
+.glass-panel-dark {
+  background: rgba(34, 30, 26, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(243, 234, 217, 0.12);
 }
 
-.glow-orb {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--violet) 0%, var(--cyan) 40%, transparent 70%);
-  filter: blur(80px);
-  opacity: 0.25;
-  animation: orb-float 12s ease-in-out infinite;
-  pointer-events: none;
-}
-
-
-/* ---- Site-wide background (har page pe, hero ke ilawa) ---- */
-body {
-  background-image: url("/images/site-bg.jpg");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 9, 18, 0.88); /* dark overlay so text stays readable */
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* ---- Hero background (sirf home page khulte hi) ---- */
-@keyframes hero-fade-in {
-  from { opacity: 0; transform: scale(1.05); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-
-/* ---- Hero background (sirf home page khulte hi) ---- */
-@keyframes hero-fade-in {
-  from { opacity: 0; transform: scale(1.05); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.hero-image-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* ---- Product silhouette — CSS-only "bottle" used where no photography
+   exists, instead of a broken <img> or an ugly placeholder box. ---- */
+.product-silhouette {
+  position: relative;
+  border-radius: 20% 20% 28% 28% / 12% 12% 16% 16%;
+  background: linear-gradient(160deg, var(--surface-2) 0%, var(--surface) 55%, var(--nude) 140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -12px 24px rgba(34, 30, 26, 0.06),
+    0 18px 40px -18px rgba(34, 30, 26, 0.35);
   overflow: hidden;
-  background-image: url("/images/hero-bg.jpg");
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
-  animation: hero-fade-in 1.4s ease-out forwards;
 }
-
-.hero-image-overlay {
+.product-silhouette::before {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10,9,18,0.35) 0%, rgba(10,9,18,0.85) 100%);
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.55) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.25) 100%);
+}
+.product-silhouette::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -6%;
+  width: 34%;
+  height: 14%;
+  transform: translateX(-50%);
+  background: var(--gold-soft);
+  border-radius: 4px;
+  opacity: 0.85;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(1.2deg); }
+}
+.float-slow { animation: float-slow 7s var(--ease-premium) infinite; }
+
+/* ---- Sample-data notice — labels dev seed data per product-quality rules ---- */
+.sample-data-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }

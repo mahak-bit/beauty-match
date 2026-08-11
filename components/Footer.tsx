@@ -2,34 +2,47 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--hairline)] mt-24">
-      <div className="mx-auto max-w-6xl px-6 py-12 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--muted)]">
-        <div>
-          <div className="font-display italic text-xl text-[var(--paper)] mb-2">Match</div>
-          <p className="max-w-sm">
-            Every skin and every head of hair reads the world differently.
-            Match reads yours first, then tells you what's actually worth buying.
+    <footer className="bg-[var(--panel)] text-[var(--on-panel)] mt-24 pb-16 sm:pb-0">
+      <div className="mx-auto max-w-7xl px-6 py-16 flex flex-col md:flex-row justify-between gap-10 text-sm text-[var(--on-panel-muted)]">
+        <div className="max-w-sm">
+          <div className="font-display italic text-2xl text-[var(--on-panel)] mb-3">Beauty Match</div>
+          <p className="leading-relaxed">
+            Skincare matched to your skin, your concerns, and your
+            preferences — with the reasoning shown, not hidden behind a
+            black box.
           </p>
         </div>
-        <div className="flex gap-12">
-          <div className="flex flex-col gap-2">
-            <span className="font-mono text-xs uppercase tracking-widest text-[var(--muted)] mb-1">
-              Explore
-            </span>
-            <Link href="/quiz" className="hover:text-[var(--paper)]">Take the quiz</Link>
-            <Link href="/discover" className="hover:text-[var(--paper)]">Discover</Link>
-            <Link href="/brands" className="hover:text-[var(--paper)]">All brands</Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="font-mono text-xs uppercase tracking-widest text-[var(--muted)] mb-1">
-              For brands
-            </span>
-            <Link href="/admin/add-product" className="hover:text-[var(--paper)]">
-              List a product
-            </Link>
-          </div>
+        <div className="flex flex-wrap gap-12">
+          <FooterGroup title="Explore">
+            <Link href="/quiz">Skin quiz</Link>
+            <Link href="/discover">Discover</Link>
+            <Link href="/brands">Brands</Link>
+            <Link href="/ingredients">Ingredients</Link>
+            <Link href="/routines">Routines</Link>
+          </FooterGroup>
+          <FooterGroup title="You">
+            <Link href="/compare">Compare</Link>
+            <Link href="/saved">My beauty shelf</Link>
+          </FooterGroup>
+          <FooterGroup title="For brands">
+            <Link href="/admin/add-product">List a product</Link>
+          </FooterGroup>
         </div>
       </div>
+      <div className="mx-auto max-w-7xl px-6 pb-8 text-xs text-[var(--on-panel-muted)]/70 font-mono">
+        Development catalogue — pricing and availability shown are illustrative sample data, not live retailer feeds.
+      </div>
     </footer>
+  );
+}
+
+function FooterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2.5 [&_a]:hover:text-[var(--on-panel)] [&_a]:transition-colors">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--on-panel-muted)] mb-1">
+        {title}
+      </span>
+      {children}
+    </div>
   );
 }

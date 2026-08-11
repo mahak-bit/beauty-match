@@ -3,155 +3,247 @@ import { products, brands } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Sun, Moon } from "lucide-react";
+import type { Metadata } from "next";
+import { parseProduct, formatPrice } from "@/lib/db/parse";
+import { findIngredientByName } from "@/lib/data/ingredients";
+import { productTypeLabel } from "@/lib/data/categories";
+import { Badge, SkinTypeBadge, ConcernBadge } from "@/components/Badge";
+import ProductActions from "@/components/ProductActions";
+import ProductMatchScore from "@/components/ProductMatchScore";
+import ProductCard from "@/components/ProductCard";
+import RecentlyViewedTracker from "@/components/RecentlyViewedTracker";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+async function getProduct(id: string) {
   const rows = await db
-    .select()
+    .select({
+      product: products,
+      brandName: brands.name,
+      brandSlug: brands.slug,
+      brandSegment: brands.segment,
+      brandId: brands.id,
+    })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
     .where(eq(products.id, id));
+  return rows[0] ?? null;
+}
 
-  if (rows.length === 0) notFound();
-  const { products: product, brands: brand } = rows[0];
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const row = await getProduct(id);
+  if (!row) return { title: "Product not found" };
+  const title = `${row.product.name} by ${row.brandName}`;
+  return {
+    title,
+    description: row.product.shortDescription ?? `${row.product.name} — details, ingredients, and Beauty Match score.`,
+    openGraph: { title, description: row.product.shortDescription ?? undefined },
+  };
+}
 
-  const keyIngredients: string[] = product.keyIngredients
-    ? JSON.parse(product.keyIngredients)
-    : [];
-  const skinTypes: string[] = product.skinTypes ? JSON.parse(product.skinTypes) : [];
-  const hairTypes: string[] = product.hairTypes ? JSON.parse(product.hairTypes) : [];
-  const concerns: string[] = product.concerns ? JSON.parse(product.concerns) : [];
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const row = await getProduct(id);
+  if (!row) notFound();
+
+  const product = parseProduct({ ...row.product, brandName: row.brandName, brandSlug: row.brandSlug });
+
+  const liveRows = await db
+    .select({ product: products, brandName: brands.name, brandSlug: brands.slug })
+    .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .where(eq(products.status, "live"));
+
+  const liveProducts = liveRows.map((r) => parseProduct({ ...r.product, brandName: r.brandName, brandSlug: r.brandSlug }));
+
+  const similar = liveProducts
+    .filter((p) => p.id !== product.id && p.productType === product.productType)
+    .slice(0, 4);
+
+  const alternatives = liveProducts
+    .filter((p) => p.id !== product.id && p.productType === product.productType && p.price != null && product.price != null)
+    .sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+
+  const cheaper = alternatives.filter((p) => (p.price ?? 0) < (product.price ?? 0)).slice(-2);
+  const premium = alternatives.filter((p) => (p.price ?? 0) > (product.price ?? 0)).slice(0, 2);
+
+  const moreFromBrand = liveProducts
+    .filter((p) => p.id !== product.id && p.brandSlug === product.brandSlug)
+    .slice(0, 4);
+
+  const resolvedIngredients = product.keyIngredients.map((name) => ({ name, data: findIngredientByName(name) }));
+  const price = formatPrice(product.price, product.currency);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-16">
-      <Link
-        href={`/brands/${brand.slug}`}
-        className="font-mono text-xs uppercase tracking-widest text-[var(--muted)] hover:text-[var(--violet)]"
-      >
-        {brand.name}
-      </Link>
-      <h1 className="font-display text-5xl mt-4">{product.name}</h1>
+    <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
+      <RecentlyViewedTracker productId={product.id} />
 
-      <div className="flex items-center gap-4 mt-4">
-        {product.price != null && (
-          <span className="font-mono text-lg text-[var(--cyan)]">
-            {product.currency === "INR" ? "₹" : "$"}
-            {product.price}
-          </span>
-        )}
-        <span className="text-sm text-[var(--muted)] capitalize">
-          {product.subcategory ?? product.category}
-        </span>
-      </div>
+      <nav className="text-xs font-mono uppercase tracking-widest text-[var(--muted)] mb-8" aria-label="Breadcrumb">
+        <Link href="/discover" className="hover:text-[var(--ink)]">Discover</Link>
+        <span className="mx-2">/</span>
+        <Link href={`/brands/${product.brandSlug}`} className="hover:text-[var(--gold-deep)]">{product.brandName}</Link>
+      </nav>
 
-      {product.shortDescription && (
-        <p className="text-lg text-[var(--muted)] mt-6 max-w-2xl">
-          {product.shortDescription}
-        </p>
-      )}
-
-      <div className="grid md:grid-cols-2 gap-10 mt-12">
+      <div className="grid md:grid-cols-[340px_1fr] gap-12">
         <div>
-          <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-4">
-            Full description
-          </h2>
-          <p className="text-[var(--paper)]/90 leading-relaxed whitespace-pre-line">
-            {product.fullDescription || "Description coming soon."}
-          </p>
-
-          {product.howToUse && (
-            <>
-              <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mt-8 mb-4">
-                How to use
-              </h2>
-              <p className="text-[var(--paper)]/90 leading-relaxed whitespace-pre-line">
-                {product.howToUse}
-              </p>
-            </>
+          <div className="product-silhouette aspect-[3/4] w-full max-w-[260px] mx-auto md:mx-0" />
+          {product.dataSource === "seed" && (
+            <p className="sample-data-note mt-4 text-center md:text-left">Sample catalogue data for development</p>
           )}
         </div>
 
-        <div className="space-y-8">
-          {keyIngredients.length > 0 && (
-            <div>
-              <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-3">
-                Key ingredients
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {keyIngredients.map((i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-3 py-1.5 rounded-full border border-[var(--hairline)] text-[var(--violet)]"
-                  >
-                    {i}
-                  </span>
-                ))}
-              </div>
-            </div>
+        <div>
+          <h1 className="font-display text-4xl sm:text-5xl text-[var(--ink)]">{product.name}</h1>
+          <p className="text-[var(--muted)] mt-2">
+            {productTypeLabel(product.productType) ?? product.subcategory ?? product.category} · {product.brandName}
+          </p>
+
+          <div className="flex items-center gap-4 mt-5">
+            {price && <span className="font-mono text-2xl text-[var(--gold-deep)]">{price}</span>}
+            {product.spf != null && <Badge tone="gold">SPF {product.spf}</Badge>}
+          </div>
+
+          <div className="mt-6">
+            <ProductMatchScore product={product} brandSegment={row.brandSegment} />
+          </div>
+
+          <div className="mt-8">
+            <ProductActions productId={product.id} morningUse={product.morningUse} nightUse={product.nightUse} />
+          </div>
+
+          {product.shortDescription && (
+            <p className="text-lg text-[var(--ink-soft)] mt-8 max-w-xl leading-relaxed">{product.shortDescription}</p>
           )}
 
-          {(skinTypes.length > 0 || hairTypes.length > 0) && (
-            <div>
-              <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-3">
-                Best suited for
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {[...skinTypes, ...hairTypes].map((t) => (
-                  <span
-                    key={t}
-                    className="text-xs px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--hairline)] capitalize"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="flex flex-wrap gap-2 mt-6">
+            {product.skinTypes.map((t) => <SkinTypeBadge key={t} type={t} />)}
+            {product.concerns.map((c) => <ConcernBadge key={c} concern={c} />)}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-10 mt-16">
+        <div>
+          <Section title="What it does">
+            <p className="text-[var(--ink-soft)] leading-relaxed whitespace-pre-line">
+              {product.fullDescription || "Full description coming soon."}
+            </p>
+          </Section>
+
+          {product.howToUse && (
+            <Section title="How to use">
+              <p className="text-[var(--ink-soft)] leading-relaxed whitespace-pre-line">{product.howToUse}</p>
+            </Section>
           )}
 
-          {concerns.length > 0 && (
-            <div>
-              <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-3">
-                Addresses
-              </h2>
+          <Section title="When to use">
+            <div className="flex gap-3">
+              {product.morningUse !== false && (
+                <span className="inline-flex items-center gap-1.5 text-sm text-[var(--ink-soft)]"><Sun size={14} /> Morning</span>
+              )}
+              {product.nightUse !== false && (
+                <span className="inline-flex items-center gap-1.5 text-sm text-[var(--ink-soft)]"><Moon size={14} /> Night</span>
+              )}
+              {product.morningUse === false && product.nightUse === false && (
+                <span className="text-sm text-[var(--muted)]">Not specified</span>
+              )}
+            </div>
+            {product.usageFrequency && (
+              <p className="text-sm text-[var(--muted)] mt-2">Frequency: {product.usageFrequency}</p>
+            )}
+          </Section>
+        </div>
+
+        <div className="space-y-10">
+          {resolvedIngredients.length > 0 && (
+            <Section title="Key ingredients">
               <div className="flex flex-wrap gap-2">
-                {concerns.map((c) => (
-                  <span
-                    key={c}
-                    className="text-xs px-3 py-1.5 rounded-full border border-[var(--rose)]/50 text-[var(--rose)]"
+                {resolvedIngredients.map(({ name, data }) => (
+                  <Link
+                    key={name}
+                    href={data ? `/ingredients/${data.slug}` : "/ingredients"}
+                    className="text-xs px-3 py-1.5 rounded-full border border-[var(--hairline)] text-[var(--gold-deep)] hover:border-[var(--gold)] transition-colors"
                   >
-                    {c}
-                  </span>
+                    {name}
+                  </Link>
                 ))}
               </div>
-            </div>
+            </Section>
+          )}
+
+          {(product.texture || product.finish || product.fragrance) && (
+            <Section title="Texture & finish">
+              <ul className="text-sm text-[var(--ink-soft)] space-y-1.5">
+                {product.texture && <li><span className="text-[var(--muted)]">Texture —</span> {product.texture}</li>}
+                {product.finish && <li><span className="text-[var(--muted)]">Finish —</span> {product.finish}</li>}
+                {product.fragrance && <li><span className="text-[var(--muted)]">Fragrance —</span> {product.fragrance}</li>}
+              </ul>
+            </Section>
           )}
 
           {product.ingredientsRaw && (
-            <div>
-              <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--muted)] mb-3">
-                Full ingredient list
-              </h2>
-              <p className="text-xs text-[var(--muted)] leading-relaxed">
-                {product.ingredientsRaw}
-              </p>
-            </div>
+            <Section title="Full ingredient list">
+              <p className="text-xs text-[var(--muted)] leading-relaxed">{product.ingredientsRaw}</p>
+            </Section>
           )}
 
           {product.cautions && (
-            <div className="flex gap-3 rounded-lg border border-amber-400/30 bg-amber-400/5 p-4">
-              <AlertTriangle size={18} className="text-amber-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-200/90">{product.cautions}</p>
+            <div className="flex gap-3 rounded-xl border border-[var(--warn)]/30 bg-[var(--warn-bg)] p-4">
+              <AlertTriangle size={18} className="text-[var(--warn)] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-mono uppercase tracking-widest text-[var(--warn)] mb-1">Worth knowing</p>
+                <p className="text-sm text-[var(--ink-soft)]">{product.cautions}</p>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {(cheaper.length > 0 || premium.length > 0) && (
+        <Section title="Alternatives">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {cheaper.map((p) => (
+              <div key={p.id}>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--gold-deep)] mb-2">Cheaper pick</p>
+                <ProductCard product={p} />
+              </div>
+            ))}
+            {premium.map((p) => (
+              <div key={p.id}>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--gold-deep)] mb-2">Premium pick</p>
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {similar.length > 0 && (
+        <Section title="Similar products">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {similar.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </Section>
+      )}
+
+      {moreFromBrand.length > 0 && (
+        <Section title={`More from ${product.brandName}`}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {moreFromBrand.map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-10 first:mt-0">
+      <h2 className="font-mono text-xs uppercase tracking-widest text-[var(--gold-deep)] mb-4">{title}</h2>
+      {children}
     </div>
   );
 }
