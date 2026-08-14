@@ -44,10 +44,10 @@ export default function QuizChat() {
   if (!path) {
     return (
       <div className="max-w-lg mx-auto text-center py-16">
-        <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--cyan)]">
+        <span className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--gold-deep)]">
           Step 1
         </span>
-        <h1 className="font-display text-4xl mt-4 mb-10">
+        <h1 className="font-display text-4xl mt-4 mb-10 text-[var(--ink)]">
           What are you shopping for?
         </h1>
         <div className="grid gap-4">
@@ -67,7 +67,7 @@ export default function QuizChat() {
             key={m.id}
             className={
               m.role === "user"
-                ? "ml-auto max-w-[80%] bg-[var(--violet)] text-[var(--ink)] rounded-2xl rounded-br-sm px-4 py-3"
+                ? "ml-auto max-w-[80%] bg-[var(--ink)] text-[var(--bg)] rounded-2xl rounded-br-sm px-4 py-3"
                 : "mr-auto max-w-[85%] bg-[var(--surface)] border border-[var(--hairline)] rounded-2xl rounded-bl-sm px-4 py-3"
             }
           >
@@ -80,17 +80,20 @@ export default function QuizChat() {
                 );
               }
               if (part.type === "tool-searchProducts" && part.state === "output-available") {
-                const output = part.output as { results: any[]; count: number };
+                const output = part.output as {
+                  results: Array<{ id: string; name: string; brandName: string; shortDescription?: string | null }>;
+                  count: number;
+                };
                 return (
                   <div key={i} className="mt-3 space-y-2">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--cyan)]">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--gold-deep)]">
                       {output.count} matches found
                     </span>
                     {output.results.slice(0, 4).map((p) => (
                       <Link
                         key={p.id}
                         href={`/products/${p.id}`}
-                        className="block rounded-lg border border-[var(--hairline)] p-3 hover:border-[var(--violet)] transition-colors"
+                        className="block rounded-lg border border-[var(--hairline)] p-3 hover:border-[var(--gold)] transition-colors"
                       >
                         <div className="flex justify-between text-sm">
                           <span className="font-medium">{p.name}</span>
@@ -119,11 +122,11 @@ export default function QuizChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your answer…"
-          className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-full px-5 py-3 text-sm focus:border-[var(--violet)] outline-none"
+          className="flex-1 bg-[var(--surface)] border border-[var(--hairline)] rounded-full px-5 py-3 text-sm text-[var(--ink)] focus:border-[var(--gold)] outline-none"
         />
         <button
           type="submit"
-          className="w-11 h-11 rounded-full bg-[var(--violet)] text-[var(--ink)] flex items-center justify-center hover:bg-[var(--cyan)] transition-colors"
+          className="w-11 h-11 rounded-full bg-[var(--ink)] text-[var(--bg)] flex items-center justify-center hover:bg-[var(--gold-deep)] transition-colors"
           aria-label="Send"
         >
           <Send size={16} />
@@ -145,9 +148,9 @@ function PathButton({
   return (
     <button
       onClick={onClick}
-      className="text-left rounded-xl border border-[var(--hairline)] px-6 py-5 hover:border-[var(--violet)] hover:bg-[var(--surface)] transition-colors"
+      className="text-left rounded-xl border border-[var(--hairline)] px-6 py-5 hover:border-[var(--gold)] hover:bg-[var(--surface)] transition-colors"
     >
-      <div className="font-display italic text-2xl">{label}</div>
+      <div className="font-display italic text-2xl text-[var(--ink)]">{label}</div>
       <div className="text-sm text-[var(--muted)] mt-1">{desc}</div>
     </button>
   );

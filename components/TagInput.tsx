@@ -39,7 +39,7 @@ export default function TagInput({
       <label className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] block mb-2">
         {label}
       </label>
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--hairline)] bg-[var(--surface)] px-3 py-2 focus-within:border-[var(--violet)]">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--hairline)] bg-[var(--surface)] px-3 py-2 focus-within:border-[var(--gold)]">
         {value.map((tag) => (
           <span
             key={tag}
@@ -73,7 +73,7 @@ export default function TagInput({
                 type="button"
                 key={s}
                 onClick={() => addTag(s)}
-                className="text-[10px] px-2 py-1 rounded-full border border-[var(--hairline)] text-[var(--muted)] hover:border-[var(--violet)] hover:text-[var(--violet)] transition-colors"
+                className="text-[10px] px-2 py-1 rounded-full border border-[var(--hairline)] text-[var(--muted)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
               >
                 + {s}
               </button>
