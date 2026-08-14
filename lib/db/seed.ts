@@ -2,6 +2,7 @@ import { db } from "./index";
 import { brands, products } from "./schema";
 import { randomUUID } from "crypto";
 import { brandData, MARKET_BY_SEGMENT, sample } from "./seed-data";
+import { getProductImageUrl } from "@/lib/data/category-images";
 
 // ---------------------------------------------------------------------------
 // Runs the development seed data (lib/db/seed-data.ts) against the
@@ -38,6 +39,7 @@ async function seed() {
       productType: p.productType,
       price: p.price,
       currency: marketInfo.currency,
+      imageUrl: getProductImageUrl(p.productType),
       shortDescription: p.shortDescription,
       fullDescription: p.fullDescription,
       howToUse: p.howToUse,

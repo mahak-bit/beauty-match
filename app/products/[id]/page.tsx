@@ -12,6 +12,7 @@ import { Badge, SkinTypeBadge, ConcernBadge } from "@/components/Badge";
 import ProductActions from "@/components/ProductActions";
 import ProductMatchScore from "@/components/ProductMatchScore";
 import ProductCard from "@/components/ProductCard";
+import ProductImage from "@/components/ProductImage";
 import RecentlyViewedTracker from "@/components/RecentlyViewedTracker";
 
 export const dynamic = "force-dynamic";
@@ -88,7 +89,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid md:grid-cols-[340px_1fr] gap-12">
         <div>
-          <div className="product-silhouette aspect-[3/4] w-full max-w-[260px] mx-auto md:mx-0" />
+          <ProductImage
+            src={product.imageUrl}
+            alt={`${product.brandName} ${product.name}`}
+            className="relative aspect-[3/4] w-full max-w-[260px] mx-auto md:mx-0 rounded-2xl"
+            sizes="260px"
+          />
           {product.dataSource === "seed" && (
             <p className="sample-data-note mt-4 text-center md:text-left">Sample catalogue data for development</p>
           )}

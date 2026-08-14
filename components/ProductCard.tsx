@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/db/parse";
 import { useSavedProducts, useCompareList } from "@/lib/client-store";
 import { concernLabel } from "@/lib/data/concerns";
 import MatchScore from "@/components/MatchScore";
+import ProductImage from "@/components/ProductImage";
 
 export type ProductCardData = {
   id: string;
@@ -20,6 +21,7 @@ export type ProductCardData = {
   currency?: string | null;
   shortDescription?: string | null;
   concerns?: string | string[] | null;
+  imageUrl?: string | null;
 };
 
 export default function ProductCard({
@@ -98,11 +100,20 @@ export default function ProductCard({
 
         <Link href={`/products/${product.id}`} className="block">
           <div className="relative aspect-[4/3] flex items-center justify-center bg-[var(--surface-2)] overflow-hidden" style={{ transform: "translateZ(30px)" }}>
-            <motion.div
-              className="product-silhouette w-16 h-24"
-              whileHover={{ y: -4 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            />
+            {product.imageUrl ? (
+              <ProductImage
+                src={product.imageUrl}
+                alt={`${product.brandName} ${product.name}`}
+                className="absolute inset-0"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
+              />
+            ) : (
+              <motion.div
+                className="product-silhouette w-16 h-24"
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              />
+            )}
             {matchScore != null && (
               <div className="absolute bottom-2 left-2 bg-[var(--bg)]/90 rounded-full backdrop-blur-sm">
                 <MatchScore score={matchScore} size={44} />

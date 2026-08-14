@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/db/parse";
 import type { Product } from "@/lib/types";
 import EmptyState from "@/components/EmptyState";
 import { Badge } from "@/components/Badge";
+import ProductImage from "@/components/ProductImage";
 
 export default function CompareClient() {
   const { compareIds, remove, clear } = useCompareList();
@@ -73,7 +74,12 @@ export default function CompareClient() {
                       >
                         <X size={12} />
                       </button>
-                      <div className="product-silhouette w-16 h-20 mb-3" />
+                      <ProductImage
+                        src={p.imageUrl}
+                        alt={`${p.brandName} ${p.name}`}
+                        className="relative w-16 h-20 mb-3 rounded-lg"
+                        sizes="64px"
+                      />
                       <Link href={`/products/${p.id}`} className="font-display italic text-lg text-[var(--ink)] hover:text-[var(--gold-deep)]">
                         {p.name}
                       </Link>
